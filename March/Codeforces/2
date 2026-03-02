@@ -1,0 +1,66 @@
+import java.util.*;
+
+public class VikaAndTheBridge {
+	public static void main(String[] args) {
+		Scanner scanner = new Scanner(System.in);
+		int t = scanner.nextInt(); // Read the number of test cases
+
+		while (t-- > 0) {
+			int n = scanner.nextInt(); // Read the number of planks
+			int k = scanner.nextInt(); // Read the number of colors
+
+			int[] v = new int[n];
+			for (int i = 0; i < n; i++) {
+				v[i] = scanner.nextInt(); // Read the colors of each plank
+			}
+
+			List<List<Integer>> colours = new ArrayList<>();
+			for (int i = 0; i <= k; i++) {
+				colours.add(new ArrayList<>());
+				colours.get(i).add(0); // Initialize each color list with 0
+			}
+
+			for (int i = 0; i < n; i++) {
+				colours.get(v[i]).add(i + 1); // Store the index (1-based) of each plank in its respective color list
+			}
+
+			for (int i = 1; i <= k; i++) {
+				colours.get(i).add(n + 1); // Append n+1 to each color list
+			}
+
+			PriorityQueue<Integer>[] jumps = new PriorityQueue[k + 1];
+			for (int i = 0; i <= k; i++) {
+				jumps[i] = new PriorityQueue<>(Collections.reverseOrder()); // Create a max-heap for each color
+			}
+
+			int ans = Integer.MAX_VALUE; // Initialize the answer to the maximum possible integer value
+
+			for (int i = 1; i <= k; i++) {
+				for (int j = 0; j < colours.get(i).size() - 1; j++) {
+					// Calculate the jump length between consecutive planks of the same color
+					jumps[i].add(colours.get(i).get(j + 1) - colours.get(i).get(j) - 1);
+				}
+
+				int maxVal = jumps[i].poll(); // Get and remove the maximum jump length
+
+				// Split the maximum jump into two smaller jumps
+				if (maxVal % 2 == 0) {
+					jumps[i].add(maxVal / 2);
+					jumps[i].add((maxVal / 2) - 1);
+				} else {
+					jumps[i].add(maxVal / 2);
+					jumps[i].add(maxVal / 2);
+				}
+
+				ans = Math.min(ans, jumps[i].peek()); // Update the answer with the smallest maximum jump
+			}
+
+			System.out.println(ans); // Output the result for the current test case
+		}
+
+		scanner.close();
+	}
+}
+
+// Time Complexity (TC): O(K + N log N) = O(N log N)
+// Space Complexity (SC): O(N)
